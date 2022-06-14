@@ -43,7 +43,6 @@ define(['N/search', 'N/record'],
             var objRecord = record.load({
                 type: record.Type.CUSTOMER,
                 id: results[0].id });
-            objRecord["test"] = 123456;
             // var amount = { order_amounts : 1200000 };
             // data = {order_amounts : 1200000, ...objRecord }
             return {
