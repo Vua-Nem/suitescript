@@ -25,11 +25,8 @@ define(['N/dataset', 'N/query', 'N/record', 'N/search'],
               }
             var customerId = requestParams.customerId;
             var myLoadedDataset = dataset.load({
-                id: 'custdataset33'    // Use a script ID from an existing script
+                id: 'custdataset48'    // Use a script ID from an existing script
             });
-            // return {
-            //     data: myLoadedDataset
-            // }
             // Create a fieldId Column
             var myCustomerIdColumn = dataset.createColumn({
                 fieldId: 'entity',
@@ -39,15 +36,9 @@ define(['N/dataset', 'N/query', 'N/record', 'N/search'],
                 fieldId: 'type',
                 id: 6
             });
-            // Create a multi-level Join
-            var transactionlinesJoin = dataset.createJoin({
-                fieldId: 'transactionlines',
-                join: null
-            });
-            var myTransactionColumn = dataset.createColumn({
-                fieldId: 'itemtype',
-                join: transactionlinesJoin,
-                id: 29
+
+            var statusColumn = dataset.createColumn({
+                fieldId: 'status'
             });
 
             // // Create a Condition with values
@@ -65,11 +56,11 @@ define(['N/dataset', 'N/query', 'N/record', 'N/search'],
                     values: [customerId]
                 }
             );
-            var myItemCondition = dataset.createCondition(
+            var statusCondition = dataset.createCondition(
                 {
-                    column: myTransactionColumn,
+                    column: statusColumn,
                     operator: query.Operator.ANY_OF,
-                    values: ["Discount", "InvtPart"]
+                    values: ["SalesOrd:G"]
                 }
             );
             var myCondition = dataset.createCondition({
@@ -78,16 +69,40 @@ define(['N/dataset', 'N/query', 'N/record', 'N/search'],
                 children: [
                     myTypeCondition, 
                     myCustomerIdCondition,
-                    myItemCondition
+                    statusCondition
                 ],
                 values: []
             }); 
             myLoadedDataset.condition = myCondition;
             // myLoadedDataset.condition = myCondition
             var result = myLoadedDataset.run();
+            var results = result.results;
+            var res = [];
+            if(results.length > 0) {
+                var orderArr = [];
+                for (let index = 0; index < results.length; index++) {
+                    // const element = array[index];
+                    var orderId = results[index].values[6];
+                    if(orderArr.includes(orderId)) {
+                        continue
+                    };
+                    orderArr.push(orderId);
+                    res.push({ 
+                        customerId : results[index].values[0],
+                        status: results[index].values[1],
+                        documentCode: results[index].values[2],
+                        type: results[index].values[3],
+                        totalAmount: results[index].values[4],
+                        loyalty_remaining_point: results[index].values[5],
+                        orderId: orderId,
+                        deparmentId: results[index].values[7],
+                        deparmentName: results[index].values[8]
+                    });
+                }
+            }
             return {
                 status: 1,
-                data: result,
+                data: res,
                 message: "Success test"
             } 
         }
